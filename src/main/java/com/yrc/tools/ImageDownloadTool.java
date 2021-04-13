@@ -17,33 +17,37 @@ import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ImageDownloadTool {
 	String dirPath;
 	List<Item> items = new ArrayList<>();
-	ThreadPoolExecutor poolExecutor=null;
+	ThreadPoolExecutor poolExecutor = null;
 
-	public ImageDownloadTool(List<Item> items,String dirPath) {
+	public ImageDownloadTool(List<Item> items, String dirPath) {
 		this.items = items;
-		this.dirPath=dirPath;
-		poolExecutor=new ThreadPoolExecutor(5,5,1, TimeUnit.HOURS,new LinkedBlockingQueue<>());
+		this.dirPath = dirPath;
+		poolExecutor = new ThreadPoolExecutor(5, 5, 1, TimeUnit.HOURS, new LinkedBlockingQueue<>());
 //		poolExecutor=new ThreadPoolExecutor(5,5,1, TimeUnit.HOURS,new ArrayBlockingQueue<Runnable>(2));
 	}
-	public void startDownload(){
+
+	public void startDownload() {
 		for (Item item : items) {
 			File dir = new File(dirPath);
-			if(!dir.exists()){
+			if (!dir.exists()) {
 				dir.mkdirs();
 			}
 			System.out.println("开始下载: " + item.getName());
-			Runnable imageDownloader = new ImageDownloader(dirPath+item.getName()+".png", item.getImage());
+			Runnable imageDownloader = new ImageDownloader(dirPath + filterSpecialChar(item.getName()) + ".png", item.getImage());
 			poolExecutor.execute(imageDownloader);
 //			imageDownloader.run();
 
 		}
 		poolExecutor.shutdown();
 	}
-	class ImageDownloader extends Thread{
+
+	class ImageDownloader extends Thread {
 		String savePath;
 		String url;
 
@@ -74,9 +78,9 @@ public class ImageDownloadTool {
 			byte[] bytes = new byte[4098];
 			try {
 				fos = new FileOutputStream(file);
-				int n=0;
-				while((n=bis.read(bytes))!=-1)
-				fos.write(bytes,0,n);
+				int n = 0;
+				while ((n = bis.read(bytes)) != -1)
+					fos.write(bytes, 0, n);
 				bis.close();
 				fos.close();
 			} catch (FileNotFoundException e) {
@@ -87,5 +91,13 @@ public class ImageDownloadTool {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static String filterSpecialChar(String fileName) {
+		String s = new String(fileName);
+		Pattern pattern = Pattern.compile("[\\s\\\\/:\\*\\?\\\"<>\\|]");
+		Matcher matcher = pattern.matcher(s);
+		s = matcher.replaceAll("[char]"); // 将匹配到的非法字符以空替换
+		return s;
 	}
 }

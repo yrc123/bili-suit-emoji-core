@@ -5,6 +5,7 @@ import org.apache.commons.cli.*;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
+import us.codecraft.webmagic.scheduler.QueueScheduler;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -23,28 +24,41 @@ public class Main {
 		String url=null;
 		String itemId=null;
 
-		if(commandLine.hasOption("u")||commandLine.hasOption("i")){
-			if(commandLine.hasOption("u")){
-				url=commandLine.getOptionValue("u");
-				Matcher matcher = pattern.matcher(url);
-				if(matcher.find()){
-					itemId=matcher.group();
-				}else{
-					System.out.println("无法解析url");
-				}
+		//获取itemId
+		if(commandLine.hasOption("u")){
+			url=commandLine.getOptionValue("u");
+			Matcher matcher = pattern.matcher(url);
+			if(matcher.find()){
+				itemId=matcher.group();
 			}else{
-				itemId=commandLine.getOptionValue("i");
+				System.out.println("无法解析url");
 			}
-			if(itemId!=null){
-				dirPath=itemId;
-				if(commandLine.hasOption("d")){
-					dirPath=commandLine.getOptionValue("d");
-				}
-				if(dirPath.charAt(dirPath.length()-1)!='/'){
-					dirPath+='/';
-				}
+		}else{
+			itemId=commandLine.getOptionValue("i");
+		}
+
+		if(itemId!=null||commandLine.hasOption("a")){
+			//设置保存文件夹
+			if(commandLine.hasOption("a")){
+				dirPath = "./suitImage";
+			}
+			if (commandLine.hasOption("d")) {
+				dirPath = commandLine.getOptionValue("d");
+			}
+			if (dirPath!=null&&dirPath.charAt(dirPath.length() - 1) != '/') {
+				dirPath += '/';
+			}
+
+			if(commandLine.hasOption("u")||commandLine.hasOption("i")) {
 				Spider.create(new BiliSuitDetailPageProcessor(dirPath))
-						.addUrl(emojyApi+itemId)
+						.addUrl(emojyApi + itemId)
+						.addPipeline(new ConsolePipeline())
+						.setDownloader(new HttpClientDownloader())
+						.thread(5)
+						.run();
+			}else if(commandLine.hasOption("a")){
+				Spider.create(new BiliSuitDetailPageProcessor(dirPath,true))
+						.addUrl(emojyApi)
 						.addPipeline(new ConsolePipeline())
 						.setDownloader(new HttpClientDownloader())
 						.thread(5)
@@ -57,8 +71,9 @@ public class Main {
 	public static CommandLine initArgs(String[] args){
 		options=new Options();
 		options.addOption("h","help",false,"将此帮助消息输出到输出流");
-		options.addOption("i","id",true,"待爬取的主题item_id（即分享链接后的item_id的值）\nurl与id输入一个即可");
+		options.addOption("i","id",true,"待爬取的主题item_id（即分享链接后的item_id的值）");
 		options.addOption("u","url",true,"待爬取的主题分享链接url\nurl与id输入一个即可");
+		options.addOption("a","all",false,"爬取所有套装");
 		options.addOption("d","directory",true,"指定放置生成的类文件的位置");
 		DefaultParser parser = new DefaultParser();
 		CommandLine commandLine= null;
