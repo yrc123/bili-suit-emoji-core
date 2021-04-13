@@ -72,7 +72,7 @@ public class Main {
 		options=new Options();
 		options.addOption("h","help",false,"将此帮助消息输出到输出流");
 		options.addOption("i","id",true,"待爬取的主题item_id（即分享链接后的item_id的值）");
-		options.addOption("u","url",true,"待爬取的主题分享链接url\nurl与id输入一个即可");
+		options.addOption("u","url",true,"待爬取的主题分享链接url");
 		options.addOption("a","all",false,"爬取所有套装");
 		options.addOption("d","directory",true,"指定放置生成的类文件的位置");
 		DefaultParser parser = new DefaultParser();
