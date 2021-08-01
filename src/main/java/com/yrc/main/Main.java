@@ -9,6 +9,9 @@ import us.codecraft.webmagic.pipeline.ConsolePipeline;
 import us.codecraft.webmagic.scheduler.QueueScheduler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,14 +68,21 @@ public class Main {
 				System.out.println("暂未完成");
 			}
 		}else if(commandLine.hasOption("l")){
-			Spider.create(new BiliSuitListPageProcessor())
+			Spider.create(new BiliSuitListPageProcessor(BiliSuitListPageProcessor::printAllSuit))
 					.addUrl(suitListApi)
 					.addPipeline(new ConsolePipeline())
 					.setDownloader(new HttpClientDownloader())
 					.thread(5)
 					.run();
 		}else if(commandLine.hasOption("f")){
-			System.out.println("暂未完成");
+			List<String> searchWords = new ArrayList<>();
+			searchWords.add(commandLine.getOptionValue("f"));
+			Spider.create(new BiliSuitListPageProcessor(BiliSuitListPageProcessor::searchSuit,searchWords))
+					.addUrl(suitListApi)
+					.addPipeline(new ConsolePipeline())
+					.setDownloader(new HttpClientDownloader())
+					.thread(5)
+					.run();
 		}else{
 			helpFormatter.printHelp("bili套装表情下载器",options);
 		}
