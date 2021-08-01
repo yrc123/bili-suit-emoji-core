@@ -16,37 +16,24 @@ import java.util.Map;
 
 public class BiliSuitDetailPageProcessor implements PageProcessor {
 	static final String itemDataJsonPath = "$.data.suit_items.emoji_package[0].items";
-	static final String bgJsonPath = "$.data.suit_items.space_bg[0].properties";
 	static final String itemIdJsonPath = "$.item_id";
 	static final String nameIdJsonPath = "$.name";
 	static final String imageIdJsonPath = "$.properties.image";
 	static final String suitStateJsonPath = "$.data.item.state";
 	static final String suitNameJsonPath = "$.data.item.name";
 	static final String dataJsonPath = "$.data";
+	//获取url中的套装id的正则表达式
 	static final String regex="((?<=id=)[0-9]+)";
-	static final String emojyApi="https://api.bilibili.com/x/garb/mall/item/suit/v2?item_id=";
+	//套装详情页api
+//	static final String emojyApi="https://api.bilibili.com/x/garb/mall/item/suit/v2?item_id=";
+//	static final String bgJsonPath = "$.data.suit_items.space_bg[0].properties";
 	String dirPath;
-	String itemId;
-	boolean findAll;
-	boolean first=true;
 
 	public BiliSuitDetailPageProcessor(String dirPath){
 		this.dirPath=dirPath;
-		this.findAll=false;
-	}
-	public BiliSuitDetailPageProcessor(String dirPath,boolean findAll){
-		this.dirPath=dirPath;
-		this.findAll=findAll;
 	}
 	@Override
 	public void process(Page page) {
-		if(findAll==true&&first==true){
-			first=false;
-			for(int i=1;i<10000;i++){
-				page.addTargetRequest(emojyApi+i);
-			}
-			return;
-		}
 		String raw = page.getRawText();
 
 		//无套装
@@ -104,15 +91,10 @@ public class BiliSuitDetailPageProcessor implements PageProcessor {
 			System.out.println("该套装无背景图");
 		}
 		ImageDownloadTool imageDownloadTool =null;
-		if(findAll==false){
-			if(dirPath==null){
-				dirPath="./"+suitName+"/";
-			}
-			imageDownloadTool=new ImageDownloadTool(emojyItems, dirPath);
-		}else{
-			imageDownloadTool=new ImageDownloadTool(emojyItems, dirPath+suitName+'/');
-
+		if(dirPath==null){
+			dirPath="./"+suitName+"/";
 		}
+		imageDownloadTool=new ImageDownloadTool(emojyItems, dirPath);
 		imageDownloadTool.startDownload();
 	}
 
