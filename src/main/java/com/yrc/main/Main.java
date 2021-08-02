@@ -6,11 +6,8 @@ import org.apache.commons.cli.*;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
-import us.codecraft.webmagic.scheduler.QueueScheduler;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +22,9 @@ public class Main {
 	static Options options ;
 	public static void main(String[] args) {
 		CommandLine commandLine = initArgs(args);
+		if(commandLine==null){
+			return;
+		}
 		HelpFormatter helpFormatter = new HelpFormatter();
 		Pattern pattern = Pattern.compile(regex);
 
@@ -87,8 +87,9 @@ public class Main {
 			helpFormatter.printHelp("bili套装表情下载器",options);
 		}
 	}
-	public static CommandLine initArgs(String[] args){
+	public static CommandLine initArgs(String[] args) {
 		options=new Options();
+		HelpFormatter helpFormatter = new HelpFormatter();
 		options.addOption("h","help",false,"将此帮助消息输出到输出流");
 		options.addOption("l","list",false,"获取套装列表");
 		options.addOption("i","id",true,"待爬取的主题item_id（即分享链接后的item_id的值）");
@@ -96,13 +97,13 @@ public class Main {
 		options.addOption("a","all",false,"爬取所有套装");
 		options.addOption("f","find",true,"搜索套装id");
 		options.addOption("d","directory",true,"指定放置生成的类文件的位置");
-		DefaultParser parser = new DefaultParser();
+		BasicParser parser = new BasicParser();
 		CommandLine commandLine= null;
 		try {
 			commandLine = parser.parse(options, args);
 		} catch (ParseException e) {
-			System.out.println("解析失败");
-			e.printStackTrace();
+			System.out.println("参数解析失败");
+			helpFormatter.printHelp("bili套装表情下载器",options);
 		}
 		return commandLine;
 	}
