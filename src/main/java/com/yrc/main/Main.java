@@ -1,7 +1,8 @@
 package com.yrc.main;
 
 import com.yrc.pageprocessor.BiliSuitDetailPageProcessor;
-import com.yrc.pageprocessor.BiliSuitListPageProcessor;
+import com.yrc.pageprocessor.PrintAllBiliSuitListProcessor;
+import com.yrc.pageprocessor.SearchBiliSuitListProcessor;
 import org.apache.commons.cli.*;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
@@ -68,7 +69,7 @@ public class Main {
 				System.out.println("暂未完成");
 			}
 		}else if(commandLine.hasOption("l")){
-			Spider.create(new BiliSuitListPageProcessor(BiliSuitListPageProcessor::printAllSuit))
+			Spider.create(new PrintAllBiliSuitListProcessor())
 					.addUrl(suitListApi)
 					.addPipeline(new ConsolePipeline())
 					.setDownloader(new HttpClientDownloader())
@@ -77,7 +78,7 @@ public class Main {
 		}else if(commandLine.hasOption("f")){
 			List<String> searchWords = new ArrayList<>();
 			searchWords.add(commandLine.getOptionValue("f"));
-			Spider.create(new BiliSuitListPageProcessor(BiliSuitListPageProcessor::searchSuit,searchWords))
+			Spider.create(new SearchBiliSuitListProcessor(searchWords))
 					.addUrl(suitListApi)
 					.addPipeline(new ConsolePipeline())
 					.setDownloader(new HttpClientDownloader())
@@ -97,10 +98,13 @@ public class Main {
 		options.addOption("a","all",false,"爬取所有套装");
 		options.addOption("f","find",true,"搜索套装id");
 		options.addOption("d","directory",true,"指定放置生成的类文件的位置");
-		BasicParser parser = new BasicParser();
 		CommandLine commandLine= null;
 		try {
+			DefaultParser parser = new DefaultParser();
 			commandLine = parser.parse(options, args);
+		} catch (MissingArgumentException e){
+			System.out.println("参数不完整");
+			helpFormatter.printHelp("bili套装表情下载器",options);
 		} catch (ParseException e) {
 			System.out.println("参数解析失败");
 			helpFormatter.printHelp("bili套装表情下载器",options);

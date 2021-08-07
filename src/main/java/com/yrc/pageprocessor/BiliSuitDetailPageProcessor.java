@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.yrc.pojo.EmojyItem;
 import com.yrc.pojo.Item;
-import com.yrc.tools.ImageDownloadTool;
+import com.yrc.utils.ImageDownloadUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
@@ -90,12 +90,12 @@ public class BiliSuitDetailPageProcessor implements PageProcessor {
 		}catch (NullPointerException e){
 			System.out.println("该套装无背景图");
 		}
-		ImageDownloadTool imageDownloadTool =null;
+		ImageDownloadUtils imageDownloadUtils =null;
 		if(dirPath==null){
 			dirPath="./"+suitName+"/";
 		}
-		imageDownloadTool=new ImageDownloadTool(emojyItems, dirPath);
-		imageDownloadTool.startDownload();
+		imageDownloadUtils =new ImageDownloadUtils(emojyItems, dirPath);
+		imageDownloadUtils.startDownload();
 	}
 
 	@Override

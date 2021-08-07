@@ -1,31 +1,25 @@
-package com.yrc.tools;
+package com.yrc.utils;
 
-import com.yrc.pojo.EmojyItem;
 import com.yrc.pojo.Item;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ImageDownloadTool {
+public class ImageDownloadUtils {
 	String dirPath;
 	List<Item> items = new ArrayList<>();
 	ThreadPoolExecutor poolExecutor = null;
 
-	public ImageDownloadTool(List<Item> items, String dirPath) {
+	public ImageDownloadUtils(List<Item> items, String dirPath) {
 		this.items = items;
 		this.dirPath = dirPath;
 		poolExecutor = new ThreadPoolExecutor(5, 5, 1, TimeUnit.HOURS, new LinkedBlockingQueue<>());
