@@ -19,18 +19,22 @@ public class EmojyItem extends Item{
 		this.itemId = itemId;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	@Override
 	public String getImage() {
 		return image;
 	}
 
+	@Override
 	public void setImage(String image) {
 		this.image = image;
 	}
