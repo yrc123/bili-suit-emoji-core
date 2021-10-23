@@ -34,6 +34,10 @@
                 <configuration>
                     <imageName>bili-suit-emojy-tool</imageName>
                     <mainClass>com.yrc.main.Main</mainClass>
+                    <buildArgs>
+                        --no-fallback
+                        --allow-incomplete-classpath
+                    </buildArgs>
                 </configuration>
             </plugin>
         </plugins>
