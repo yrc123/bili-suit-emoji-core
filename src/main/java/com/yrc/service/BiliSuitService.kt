@@ -1,14 +1,33 @@
 package com.yrc.service
 
-import okhttp3.ResponseBody
-import retrofit2.http.GET
-import retrofit2.http.Query
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.utils.URIBuilder
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.util.EntityUtils
 
-interface BiliSuitService {
+class BiliSuitService {
     //套装详情页api
-    @GET("https://api.bilibili.com/x/garb/mall/item/suit/v2")
-    suspend fun getSuitDetailByItemId(@Query("item_id") itemId:Int):ResponseBody
+    fun getSuitDetailByItemId(itemId:Int):String{
+        val client: CloseableHttpClient? = HttpClientBuilder.create().build()
+        val url = URIBuilder("https://api.bilibili.com/x/garb/mall/item/suit/v2")
+            .addParameter("item_id", itemId.toString())
+            .build()
+        val httpGet = HttpGet(url)
+        val entity = client
+            ?.execute(httpGet)
+            ?.entity
+        return EntityUtils.toString(entity,"utf8")
+    }
     //获取套装列表api
-    @GET("https://www.bilibili.com/h5/mall/home")
-    suspend fun getSuitList():ResponseBody
+    fun getSuitList():String{
+        val client: CloseableHttpClient? = HttpClientBuilder.create().build()
+        val url = URIBuilder("https://www.bilibili.com/h5/mall/home")
+            .build()
+        val httpGet = HttpGet(url)
+        val entity = client
+            ?.execute(httpGet)
+            ?.entity
+        return EntityUtils.toString(entity,"utf8")
+    }
 }

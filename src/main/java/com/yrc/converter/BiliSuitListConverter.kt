@@ -1,12 +1,8 @@
 package com.yrc.converter
 
 import com.yrc.service.BiliSuitService
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
-class BiliSuitListConverter(val service:BiliSuitService) {
+class BiliSuitListConverter(private val service:BiliSuitService) {
 
     companion object{
         //获取套装列表数据的正则表达式
@@ -21,8 +17,8 @@ class BiliSuitListConverter(val service:BiliSuitService) {
         //获取套装name的正则表达式
         const val nameRegex = "((?<=\"name\":)\".*?\")"
     }
-    suspend fun getItemMap():Map<Int, String>{
-        val html = service.getSuitList().string()
+    private fun getItemMap():Map<Int, String>{
+        val html = service.getSuitList()
         val idNameMap = getIdNameMapByString(html)
         println("共找到${idNameMap.size}套套装")
         return idNameMap
@@ -50,7 +46,7 @@ class BiliSuitListConverter(val service:BiliSuitService) {
                 (it.first!!) to (it.second!!)
             }
     }
-    fun printItemList(itemList:List<Pair<Int,String>>){
+    private fun printItemList(itemList:List<Pair<Int,String>>){
         itemList.map {
                 (it.first.toString().padStart(5,' ')) to it.second
             }
@@ -58,22 +54,16 @@ class BiliSuitListConverter(val service:BiliSuitService) {
             println("套装id: ${it.first}\t  套装名: ${it.second}")
         }
     }
-}
-fun BiliSuitListConverter.printItemList() = runBlocking {
-    val deferred = async {
-        getItemMap().toList()
+    fun printRegexItemList(regex:String){
+        val itemList = getItemMap().toList()
+        val findRegex = Regex(regex)
+        printItemList(
+            itemList.filter {
+                findRegex.containsMatchIn(it.second)
+            }.toList())
     }
-    val itemList = deferred.await()
-    printItemList(itemList)
-}
-fun BiliSuitListConverter.printRegexItemList(regex:String) = runBlocking {
-    val deferred = async {
-        getItemMap().toList()
+    fun printItems(){
+        val itemList = getItemMap().toList()
+        printItemList(itemList)
     }
-    val itemList = deferred.await()
-    val findRegex = Regex(regex)
-    printItemList(
-        itemList.filter {
-            findRegex.containsMatchIn(it.second)
-        }.toList())
 }

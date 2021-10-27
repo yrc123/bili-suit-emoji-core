@@ -1,17 +1,19 @@
 package com.yrc.main;
 
-import com.yrc.pageprocessor.BiliSuitDetailPageProcessor;
-import com.yrc.pageprocessor.PrintAllBiliSuitListProcessor;
-import com.yrc.pageprocessor.SearchBiliSuitListProcessor;
-import org.apache.commons.cli.*;
-import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.downloader.HttpClientDownloader;
-import us.codecraft.webmagic.pipeline.ConsolePipeline;
-
+import com.yrc.converter.BiliSuitDetailConverter;
+import com.yrc.converter.BiliSuitListConverter;
+import com.yrc.service.BiliSuitService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingArgumentException;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 public class Main {
 	//获取url中的套装id的正则表达式
@@ -22,6 +24,7 @@ public class Main {
 	static final String suitListApi="https://www.bilibili.com/h5/mall/home";
 	static Options options ;
 	public static void main(String[] args) {
+		BiliSuitService service = new BiliSuitService();
 		CommandLine commandLine = initArgs(args);
 		if(commandLine==null){
 			return;
@@ -59,31 +62,19 @@ public class Main {
 			}
 
 			if(commandLine.hasOption("u")||commandLine.hasOption("i")) {
-				Spider.create(new BiliSuitDetailPageProcessor(dirPath))
-						.addUrl(emojyApi + itemId)
-						.addPipeline(new ConsolePipeline())
-						.setDownloader(new HttpClientDownloader())
-						.thread(5)
-						.run();
+				BiliSuitDetailConverter detailConverter = new BiliSuitDetailConverter(service, dirPath);
+				detailConverter.downloadSuitById(Integer.parseInt(itemId));
 			}else if(commandLine.hasOption("a")){
 				System.out.println("暂未完成");
 			}
 		}else if(commandLine.hasOption("l")){
-			Spider.create(new PrintAllBiliSuitListProcessor())
-					.addUrl(suitListApi)
-					.addPipeline(new ConsolePipeline())
-					.setDownloader(new HttpClientDownloader())
-					.thread(5)
-					.run();
+			BiliSuitListConverter listConverter = new BiliSuitListConverter(service);
+			listConverter.printItems();
 		}else if(commandLine.hasOption("f")){
 			List<String> searchWords = new ArrayList<>();
 			searchWords.add(commandLine.getOptionValue("f"));
-			Spider.create(new SearchBiliSuitListProcessor(searchWords))
-					.addUrl(suitListApi)
-					.addPipeline(new ConsolePipeline())
-					.setDownloader(new HttpClientDownloader())
-					.thread(5)
-					.run();
+			BiliSuitListConverter listConverter = new BiliSuitListConverter(service);
+			listConverter.printRegexItemList(searchWords.get(0));
 		}else{
 			helpFormatter.printHelp("bili套装表情下载器",options);
 		}
@@ -100,7 +91,7 @@ public class Main {
 		options.addOption("d","directory",true,"指定放置生成的类文件的位置");
 		CommandLine commandLine= null;
 		try {
-			DefaultParser parser = new DefaultParser();
+			CommandLineParser parser = new BasicParser();
 			commandLine = parser.parse(options, args);
 		} catch (MissingArgumentException e){
 			System.out.println("参数不完整");
