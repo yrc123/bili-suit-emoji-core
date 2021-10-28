@@ -5,7 +5,7 @@ import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import com.yrc.pojo.Item
 import com.yrc.service.BiliSuitService
-import com.yrc.utils.ImageDownloadUtils
+import com.yrc.utils.ImageDownloader
 
 class BiliSuitDetailConverter(private val service:BiliSuitService, var dirPath:String?) {
     companion object{
@@ -84,9 +84,9 @@ class BiliSuitDetailConverter(private val service:BiliSuitService, var dirPath:S
         //合并下载列表
         val itemList = emojiItemList + spaceBgList
         //下载文件
-        dirPath = dirPath ?: "./$suitName/"
-        val imageDownloadUtils = ImageDownloadUtils(itemList.toMutableList(), dirPath)
-        imageDownloadUtils.startDownload()
+        val savePath = dirPath ?: "./$suitName/"
+        val downloader = ImageDownloader(itemList.toMutableList(), savePath)
+        downloader.startDownload()
     }
 }
 
