@@ -1,8 +1,8 @@
 package com.yrc.converter
 
-import com.yrc.utils.EmojiDataUtil
+import com.yrc.utils.UrlUtil
 
-class BiliSuitListConverter(private val util: EmojiDataUtil) {
+class BiliSuitListConverter(private val apiUrl: String, private val urlUtil: UrlUtil = UrlUtil()) {
 
     companion object{
         //获取套装列表数据的正则表达式
@@ -18,7 +18,7 @@ class BiliSuitListConverter(private val util: EmojiDataUtil) {
         const val nameRegex = "((?<=\"name\":)\".*?\")"
     }
     private fun getItemMap():Map<Int, String>{
-        val html = util.getSuitList()
+        val html = urlUtil.getString(apiUrl)
         val idNameMap = getIdNameMapByString(html)
         println("共找到${idNameMap.size}套套装")
         return idNameMap
@@ -46,7 +46,7 @@ class BiliSuitListConverter(private val util: EmojiDataUtil) {
                 (it.first!!) to (it.second!!)
             }
     }
-    private fun printItemList(itemList:List<Pair<Int,String>>){
+    fun printItemList(itemList:List<Pair<Int,String>>){
         itemList.map {
                 (it.first.toString().padStart(5,' ')) to it.second
             }
@@ -54,16 +54,14 @@ class BiliSuitListConverter(private val util: EmojiDataUtil) {
             println("套装id: ${it.first}\t  套装名: ${it.second}")
         }
     }
-    fun printRegexItemList(regex:String){
+    fun getRegexItemList(regex:String): List<Pair<Int, String>> {
         val itemList = getItemMap().toList()
         val findRegex = Regex(regex)
-        printItemList(
-            itemList.filter {
+        return itemList.filter {
                 findRegex.containsMatchIn(it.second)
-            }.toList())
+            }.toList()
     }
-    fun printItems(){
-        val itemList = getItemMap().toList()
-        printItemList(itemList)
+    fun getItems(): List<Pair<Int, String>> {
+        return getItemMap().toList()
     }
 }

@@ -4,10 +4,9 @@ import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import com.yrc.pojo.Item
-import com.yrc.utils.EmojiDataUtil
-import com.yrc.utils.ImageDownloader
+import com.yrc.utils.UrlUtil
 
-class BiliSuitDetailConverter(private val util: EmojiDataUtil, private var dirPath:String?) {
+class BiliSuitDetailConverter(private val apiUrl: String, private val urlUtil: UrlUtil = UrlUtil()) {
     companion object{
         //获取套装名
         const val suitNameJsonPath = "$.data.item.name"
@@ -28,12 +27,11 @@ class BiliSuitDetailConverter(private val util: EmojiDataUtil, private var dirPa
 
     }
 
-    val String.Companion.EMPTY:String
-        get() = ""
+    fun getItemList(params: Map<String, String>,
+                    idMethod: (Map<String, String>) -> String): List<Item> {
 
-    fun downloadSuitById(suitId:Int){
-
-        val json = util.getSuitDetailByItemId(suitId)
+        val json = urlUtil.getString(urlUtil.buildUrl(apiUrl, params))
+        val id = idMethod.invoke(params)
 
         //配置JsonPath，使其不会返回异常，找不到的元素返回空
         val conf = Configuration
@@ -42,49 +40,45 @@ class BiliSuitDetailConverter(private val util: EmojiDataUtil, private var dirPa
             .options(Option.DEFAULT_PATH_LEAF_TO_NULL)
             .build()
         //解析json
-        val document = JsonPath.parse(json,conf)
-        val suitState:String = document.read(suitStateJsonPath)?:String.EMPTY
-        val suitName:String = document.read(suitNameJsonPath)?:String.EMPTY
+        val document = JsonPath.parse(json, conf)
+        val suitState: String = document.read<String?>(suitStateJsonPath).orEmpty()
+        val suitName: String = document.read<String?>(suitNameJsonPath).orEmpty()
         if (suitState.isEmpty()) {
-            println("无对应套装：id=$suitId")
-            return
+            println("无对应套装：id=$id")
+            return listOf()
         } else if (suitState == "1") {
-            println("套装失效：id=$suitId name=$suitName")
+            println("套装失效：id=$id name=$suitName")
         } else {
-            println("发现套装：id=$suitId name=$suitName")
+            println("发现套装：id=$id name=$suitName")
         }
         //获取表情包
-        val emojiRawList:List<JsonNode> = document.read(emojiListJsonPath)?: listOf()
+        val emojiRawList: List<JsonNode> = document.read(emojiListJsonPath) ?: listOf()
         val emojiItemList = emojiRawList.map {
-            val root = JsonPath.parse(it,conf)
-            val itemId: String = root.read<Int?>(itemIdJsonPath)?.toString() ?: String.EMPTY
-            val name: String = root.read(nameJsonPath) ?: String.EMPTY
-            val image: String = root.read(imageUrlJsonPath) ?: String.EMPTY
+            val root = JsonPath.parse(it, conf)
+            val itemId: String = root.read<Int?>(itemIdJsonPath)?.toString().orEmpty()
+            val name: String = root.read<String?>(nameJsonPath).orEmpty()
+            val image: String = root.read<String?>(imageUrlJsonPath).orEmpty()
             Item(itemId, name, image)
         }.toList()
 
-        if(emojiItemList.isEmpty()){
-            println("套装 $suitId 无表情包")
+        if (emojiItemList.isEmpty()) {
+            println("套装 $id 无表情包")
         }
 
         //获取套装背景
-        val spaceBgMap:JsonNode = document.read(spaceBgJsonPath)?: mapOf()
+        val spaceBgMap: JsonNode = document.read(spaceBgJsonPath) ?: mapOf()
         val spaceBgList = spaceBgMap.filter {
             it.key.matches(Regex(spaceBgRegex))
         }.map {
-            Item(String.EMPTY, it.key, it.value.toString())
+            Item("", it.key, it.value.toString())
         }.toList()
 
-        if(spaceBgList.isEmpty()){
+        if (spaceBgList.isEmpty()) {
             println("该套装无背景图")
         }
 
         //合并下载列表
-        val itemList = emojiItemList + spaceBgList
-        //下载文件
-        val savePath = dirPath ?: "./$suitName/"
-        val downloader = ImageDownloader(itemList.toMutableList(), savePath)
-        downloader.startDownload()
+        return emojiItemList + spaceBgList
     }
 }
 
