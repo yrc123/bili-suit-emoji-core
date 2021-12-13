@@ -1,7 +1,6 @@
 package com.yrc.utils
 
 import com.yrc.pojo.Item
-import com.yrc.service.sendGet
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI

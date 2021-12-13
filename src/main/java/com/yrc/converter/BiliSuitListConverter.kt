@@ -1,8 +1,8 @@
 package com.yrc.converter
 
-import com.yrc.service.BiliSuitService
+import com.yrc.utils.EmojiDataUtil
 
-class BiliSuitListConverter(private val service:BiliSuitService) {
+class BiliSuitListConverter(private val util: EmojiDataUtil) {
 
     companion object{
         //获取套装列表数据的正则表达式
@@ -18,7 +18,7 @@ class BiliSuitListConverter(private val service:BiliSuitService) {
         const val nameRegex = "((?<=\"name\":)\".*?\")"
     }
     private fun getItemMap():Map<Int, String>{
-        val html = service.getSuitList()
+        val html = util.getSuitList()
         val idNameMap = getIdNameMapByString(html)
         println("共找到${idNameMap.size}套套装")
         return idNameMap

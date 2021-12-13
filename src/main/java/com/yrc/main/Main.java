@@ -1,12 +1,10 @@
 package com.yrc.main;
 
-import com.yrc.converter.BiliSuitDetailConverter;
-import com.yrc.converter.BiliSuitListConverter;
-import com.yrc.service.BiliSuitService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -14,6 +12,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import com.yrc.converter.BiliSuitDetailConverter;
+import com.yrc.converter.BiliSuitListConverter;
+import com.yrc.utils.EmojiDataUtil;
 
 public class Main {
 	//获取url中的套装id的正则表达式
@@ -24,7 +26,7 @@ public class Main {
 	static final String suitListApi="https://www.bilibili.com/h5/mall/home";
 	static Options options ;
 	public static void main(String[] args) {
-		BiliSuitService service = new BiliSuitService();
+		EmojiDataUtil util = new EmojiDataUtil();
 		CommandLine commandLine = initArgs(args);
 		if(commandLine==null){
 			return;
@@ -36,7 +38,7 @@ public class Main {
 		String url=null;
 		String itemId=null;
 
-		//获取itemId
+        //获取itemId
 		if(commandLine.hasOption("u")){
 			url=commandLine.getOptionValue("u");
 			Matcher matcher = pattern.matcher(url);
@@ -62,18 +64,18 @@ public class Main {
 			}
 
 			if(commandLine.hasOption("u")||commandLine.hasOption("i")) {
-				BiliSuitDetailConverter detailConverter = new BiliSuitDetailConverter(service, dirPath);
+				BiliSuitDetailConverter detailConverter = new BiliSuitDetailConverter(util, dirPath);
 				detailConverter.downloadSuitById(Integer.parseInt(itemId));
 			}else if(commandLine.hasOption("a")){
 				System.out.println("暂未完成");
 			}
 		}else if(commandLine.hasOption("l")){
-			BiliSuitListConverter listConverter = new BiliSuitListConverter(service);
+			BiliSuitListConverter listConverter = new BiliSuitListConverter(util);
 			listConverter.printItems();
 		}else if(commandLine.hasOption("f")){
 			List<String> searchWords = new ArrayList<>();
 			searchWords.add(commandLine.getOptionValue("f"));
-			BiliSuitListConverter listConverter = new BiliSuitListConverter(service);
+			BiliSuitListConverter listConverter = new BiliSuitListConverter(util);
 			listConverter.printRegexItemList(searchWords.get(0));
 		}else{
 			helpFormatter.printHelp("bili套装表情下载器",options);

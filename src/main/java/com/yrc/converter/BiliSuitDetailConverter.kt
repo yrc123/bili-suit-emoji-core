@@ -4,13 +4,11 @@ import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import com.yrc.pojo.Item
-import com.yrc.service.BiliSuitService
+import com.yrc.utils.EmojiDataUtil
 import com.yrc.utils.ImageDownloader
 
-class BiliSuitDetailConverter(private val service:BiliSuitService, var dirPath:String?) {
+class BiliSuitDetailConverter(private val util: EmojiDataUtil, private var dirPath:String?) {
     companion object{
-        //获取data
-        const val dataJsonPath = "$.data"
         //获取套装名
         const val suitNameJsonPath = "$.data.item.name"
         //获取套装状态码
@@ -35,7 +33,7 @@ class BiliSuitDetailConverter(private val service:BiliSuitService, var dirPath:S
 
     fun downloadSuitById(suitId:Int){
 
-        val json = service.getSuitDetailByItemId(suitId)
+        val json = util.getSuitDetailByItemId(suitId)
 
         //配置JsonPath，使其不会返回异常，找不到的元素返回空
         val conf = Configuration
@@ -90,4 +88,4 @@ class BiliSuitDetailConverter(private val service:BiliSuitService, var dirPath:S
     }
 }
 
-typealias JsonNode = Map<String, Any>
+typealias JsonNode = Map<String, Any?>
