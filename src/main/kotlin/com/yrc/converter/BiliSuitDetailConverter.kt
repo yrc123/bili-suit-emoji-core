@@ -6,7 +6,7 @@ import com.jayway.jsonpath.Option
 import com.yrc.pojo.Item
 import com.yrc.utils.UrlUtil
 
-class BiliSuitDetailConverter(private val apiUrl: String, private val urlUtil: UrlUtil = UrlUtil()) {
+public class BiliSuitDetailConverter(private val apiUrl: String, private val urlUtil: UrlUtil = UrlUtil()) {
     companion object{
         //获取套装名
         const val suitNameJsonPath = "$.data.item.name"

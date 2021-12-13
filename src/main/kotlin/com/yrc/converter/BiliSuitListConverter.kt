@@ -2,7 +2,7 @@ package com.yrc.converter
 
 import com.yrc.utils.UrlUtil
 
-class BiliSuitListConverter(private val apiUrl: String, private val urlUtil: UrlUtil = UrlUtil()) {
+public class BiliSuitListConverter(private val apiUrl: String, private val urlUtil: UrlUtil = UrlUtil()) {
 
     companion object{
         //获取套装列表数据的正则表达式
