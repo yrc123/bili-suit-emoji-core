@@ -4,8 +4,6 @@
 
 bili-suit-emojy是一款用来下载b站套装图片的软件
 
-使用了WebMagic爬虫框架
-
 ## 用法
 
 ```
